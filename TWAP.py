@@ -28,11 +28,12 @@ private_client = Client(
 account_response = private_client.private.get_account()
 position_id = account_response.data['account']['positionId']
 
-security_name = sys.argv[1] 
-total_size = float(sys.argv[2])
-duration = float(sys.argv[3]) #in minutes
-time_increment = str(sys.argv[4])
-direction =  sys.argv[5]
+direction =  sys.argv[1]
+security_name = sys.argv[2] 
+total_size = float(sys.argv[3])
+duration = float(sys.argv[4]) #in minutes
+time_increment = str(sys.argv[5])
+
 
 if direction == "buy":
     SIDE = str(ORDER_SIDE_BUY)
@@ -101,7 +102,20 @@ def run_script():
 				print("order submitted #", order_counter, " of ", no_orders, " - End time:", str(end_time.strftime("%H:%M:%S - %D")))
 				show_order=1
 			except Exception as e:
-				print(error.msg['errors'][0]['msg'])
+				try:
+					print(e.msg['errors'][0]['msg'])
+					ws.close()
+				except:
+					print(e)
+					ws.close()
+
+			orders_filled = pd.DataFrame(private_client.private.get_fills(market=security_name, limit=int(order_counter)).data['fills'])
+			orders_filled['price'] = pd.to_numeric(orders_filled['price'])
+			print("Filled", direction, rate, security_name, "@", orders_filled.iloc[0]['price'], " --- ",
+				int(order_counter), "/", int(no_orders), "orders filled @ avg", round(orders_filled["price"].mean(),5))
+            
+			print("-----------------------------------------------------------------------------")
+
 
 			if time_increment == "seconds":
 				next_execution = next_execution + datetime.timedelta(seconds=10)
