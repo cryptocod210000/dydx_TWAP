@@ -35,10 +35,10 @@ duration = float(sys.argv[4]) #in minutes
 time_increment = str(sys.argv[5])
 
 
-if direction == "buy":
+if direction == "buy" or direction=='Buy':
     SIDE = str(ORDER_SIDE_BUY)
     price = "1000000000"
-elif direction == "sell":
+elif direction == "sell" or direction=='Sell':
     SIDE = str(ORDER_SIDE_SELL)
     price = "0.001"
 else:
